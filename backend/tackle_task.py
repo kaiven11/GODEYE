@@ -7,7 +7,7 @@
 import sys
 import paramiko
 import multiprocessing
-from GOD import models
+#from GOD import models
 #将命令处理结果写入到taskdetail中
 def  cmd_eva(bind_hosts,cmd_str,passwd,port):
     SSHClient=paramiko.SSHClient()
@@ -28,5 +28,5 @@ def download_file(remote_path):
 
 #判断用户的输入的命令是否正确
 if __name__=="__main__":
-   p=multiprocessing.Pool()
+   print("task_tackle")
 

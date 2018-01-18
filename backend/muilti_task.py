@@ -34,7 +34,7 @@ class Muiltiple_task():
 
     def run(self):
         a=self.parase_type(self.tasktype)
-        a()
+        return a()
 
 
 
@@ -48,9 +48,12 @@ class Muiltiple_task():
         print("there")
         cmd=self.request.POST.get('cmd')
         print(cmd)
-        assert cmd
+        #assert cmd
         # hostgroup=self.request.POST.get("group")
         hostselected=self.request.POST.getlist("selected_host")#这里暂时处理前端提交的未分组的机器
+        print(hostselected,type(hostselected))
+        hostselected_str=[",".join(i) for i in hostselected]
+        print(hostselected_str)
         # if hostgroup:
         #     models.get(group).valuelist()
         # if hostselected:
@@ -63,19 +66,26 @@ class Muiltiple_task():
         #约定参数  -tasktype,host,
         #创建任务日志
 
-        task_obj=models.TaskLog.objects.create(user=self.request.user,task_type=self.tasktype,cmd_str=cmd)
-        p=subprocess.Popen([r"c:\Python3.4\python",settings.TACKLE_SCRIPTS,"-tasktype",self.tasktype,
-                          "-host",hostselected,
-                          "-userid",self.request.user.id,
+        task_obj=models.TaskLog.objects.create(tag_name="a",user=self.request.user,task_type=self.tasktype,cmd_str=cmd)
+        print(type(self.request.user.id))
+        p=subprocess.Popen(["python",settings.TACKLE_SCRIPTS,"-tasktype",self.tasktype,
+                          #"-host",hostselected,
+                          "-userid",str(self.request.user.id),
                           "-cmd_str",cmd,
-                          "-taskid",task_obj.id
-                          ],preexec_fn=os.setsid())#设置一个进程组，方便后期结束整个任务
+                          "-taskid",str(task_obj.id),
+                          ],preexec_fn=os.setsid)#设置一个进程组，方便后期结束整个任务
 
         pid=p.pid
         task_obj.task_pid=pid
+        print(task_obj.id)
         task_obj.save()
-        result=p.stderr.read() or p.stdout.read()
-        return result
+        
+        #write the "taskdetail" log 
+        for i in hostselected:
+
+            models.Taskdetail.objects.create(children_task_id=task_obj.id,status=0,event_log='',bind_host_id=i)
+       	
+        return task_obj.id
 
 
 

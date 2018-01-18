@@ -149,6 +149,7 @@ def muilt_cmd(request):
     #未分组主机
 
     ugroup_host=request.user.bind_host.all()
+    print(ugroup_host,request.user)
     # if request.method=="GET":
     #     pass
     if request.is_ajax():
@@ -160,8 +161,9 @@ def muilt_cmd(request):
             print("here")
             ret=muilti_task.Muiltiple_task("cmd",request)
             a=ret.run()
-            print(a)
-            return  HttpResponse(ret)
+            print("ret---",a)
+            
+            return  HttpResponse(a)
 
 
     return render(request,"host_task.html",{'ugroup_host':ugroup_host})

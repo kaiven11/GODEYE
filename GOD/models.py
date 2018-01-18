@@ -170,7 +170,8 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
-
+    def __str__(self):
+         return self.name
     class Meta:
         verbose_name="用户表"
         verbose_name_plural="用户表"
@@ -178,8 +179,8 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
 #堡垒机用户从后台登录后得到的日志信息
 class UserLog(models.Model):
     name=models.CharField(max_length=128)
-    user=models.ForeignKey('UserProfile')
-    bindhost=models.ForeignKey('BindHosts')
+    user=models.ForeignKey('UserProfile',on_delete=models.DO_NOTHING)
+    bindhost=models.ForeignKey('BindHosts',on_delete=models.DO_NOTHING)
     logtime=models.DateTimeField(auto_now_add=True)
 
 
@@ -187,12 +188,13 @@ class UserLog(models.Model):
 
 class TaskLog(models.Model):
     tag_name=models.CharField(max_length=128,blank=True,null=True)
-    user=models.ForeignKey("UserProfile")
+    user=models.ForeignKey("UserProfile",on_delete=models.DO_NOTHING)
     cmd_str=models.CharField(max_length=1024)
     task_pid=models.IntegerField(default=0)
     task_time=models.DateTimeField(auto_now_add=True)
     task_type_choices = (('cmd', "CMD"), ('file_send', "批量发送文件"), ('file_get', "批量下载文件"))
     task_type = models.CharField(choices=task_type_choices, max_length=50)
+    #hosts = models.ManyToManyField('BindHosts')
 
     def __str__(self):
         return self.tag_name
@@ -202,15 +204,15 @@ class TaskLog(models.Model):
 
 
 class Taskdetail(models.Model):
-    children_task=models.ForeignKey("TaskLog")
-    status_choice=((0,"failed"),('1',"sucess"))
+    children_task=models.ForeignKey("TaskLog",on_delete=models.DO_NOTHING)
+    status_choice=((0,"failed"),(1,"sucess"),(2,"unknow"))
     status=models.PositiveIntegerField(choices=status_choice)
     date=models.DateTimeField(auto_now_add=True)
     event_log=models.TextField()
-    bind_host=models.ForeignKey('BindHosts')
-
+    bind_host=models.ForeignKey('BindHosts',on_delete=models.DO_NOTHING)
     def __str__(self):
-        return "%s:%s" %(self.children_task,self.bind_host)
+        return self.id
+
 
     class Meta:
         verbose_name_plural = "任务详细"

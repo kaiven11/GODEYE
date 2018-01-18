@@ -160,7 +160,7 @@ LOGIN_URL='/account/login'
 
 #任务脚本
 
-TACKLE_SCRIPTS=os.path.join(BASE_DIR,"tackle_task.py")
+TACKLE_SCRIPTS=os.path.join(BASE_DIR,"backend/tackle_task.py")
 
 
 #for celery

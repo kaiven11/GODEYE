@@ -11,7 +11,7 @@
 {% for item in ugroup_host %}
     <div class="checkbox">
         <label>
-          <input type="checkbox" name="selected_host" value="{{ item }}"> {{ item }}
+          <input type="checkbox" name="selected_host" value="{{ item.id }}"> {{ item }}
         </label>
       </div>
 
@@ -48,7 +48,10 @@
                 var  cmdstr=$('input[name="cmd"]').val()
                 data1+="&cmd="+ cmdstr
                 console.log(data1)
-                $.post('{% url "muilt_cmd" %}',data1)
+                $.post('{% url "muilt_cmd" %}',data1,function(data){
+			alert(data);
+                        
+		})
 
             })
          }
