@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+
+{% block css%}
+{% endblock %}
+
+{% block content %}
+
+    <!-- 显示主机相关信息  -->
+
+<h1 class="page-header">主机基本信息</h1>
+
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">主机信息</div>
+  <div class="panel-body">
+    <p>提示：用户可通过点击主机前的ID号进行实时显示主机信息！</p>
+  </div>
+
+  <!-- Table -->
+  <table class="table">
+       <thead>
+          <tr><th>主机ID</th>
+              <th>主机名</th>
+              <th>主机绑定用户</th>
+              <th>主机IP</th>
+          </tr>
+       </thead>
+
+      <tbody>
+         {% for host in host_list %}
+         <tr>
+            <td><a href="{% url 'host_info' host.host.id  %}">{{ host.host.id }}</a></td>
+             <td>{{ host.host.Hostname }}</td>
+             <td>{{ host.host_user.username }}</td>
+             <td>{{ host.host.IPaddr }}</td>
+         </tr>
+        {% endfor %}
+      </tbody>
+  </table>
+</div>
+
+
+
+{% endblock %}
+
+
+
+
+{% block script %}
+  <script>
+      $(function () {
+             $('#opt1').removeClass('active')
+          $('#opt2').addClass('active')
+      })
+  </script>
+{% endblock %}

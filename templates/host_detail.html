@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block css%}
+{% endblock %}
+
+
+{% block content%}
+    <!--
+①　可实时显示主机CPU的使用率（以图表显示）
+②　实时显示主机的内存使用率（以图表显示）
+③　硬盘分区信息（表格显示）
+④　显示主机的类型 （表格显示）
+⑤　显示主机内核版本（表格显示）
+⑥　CUP处理器名称（表格显示）
+
+用一个定时任务从客户端读取信息
+
+
+
+-->
+
+<h1 class="page-header">主机基本信息</h1>
+
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">主机信息</div>
+  <div class="panel-body">
+    <p>提示：用户可通过点击主机前的ID号进行实时显示主机信息！</p>
+  </div>
+
+  <!-- Table -->
+    <div class="container" style="border: 1px solid gray">
+        <div class="row">
+            <div class="col-lg-3 col-lg-offset-1" id="cpu" style="width: 400px;height:400px;"></div>
+            <div class="col-lg-3 col-lg-offset-1" id="mem" style="width: 400px;height:400px;"></div>
+        </div>
+    </div>
+    <hr>
+</div>
+
+        <!-- 显示主机CPU信息和内存信息 -->
+
+
+
+
+
+{#     <div class="pull-right"></div>#}
+{#       <button type="submit" class="btn btn-success">下一步</button>#}
+{#     </div>#}
+
+
+</div>
+
+
+  <!-- Table -->
+
+
+
+
+{% endblock %}
+
+{% block script%}
+    <script src="/static/js/echarts.min.js"></script>
+    <script>
+  $(function () {
+
+
+          $('#opt1').removeClass('active')
+          $('#opt2').addClass('active')
+
+
+        var myChart = echarts.init(document.getElementById('cpu'));
+        var myChart1 = echarts.init(document.getElementById('mem'));
+
+
+        var option = {
+    tooltip : {
+        formatter: "{a} <br/>{b} : {c}%"
+    },
+{#    toolbox: {#}
+{#        feature: {#}
+{#            restore: {},#}
+{#            saveAsImage: {}#}
+{#        }#}
+{#    },#}
+    series: [
+        {
+            name: 'CPU使用率',
+            type: 'gauge',
+            detail: {formatter:'{value}%'},
+            data: [{value: 10, name: 'CPU使用率'}]
+        }
+    ]
+};
+
+         var option1 = {
+    tooltip : {
+        formatter: "{a} <br/>{b} : {c}%"
+    },
+{#    toolbox: {#}
+{#        feature: {#}
+{#            restore: {},#}
+{#            saveAsImage: {}#}
+{#        }#}
+{#    },#}
+    series: [
+        {
+            name: 'CPU使用率',
+            type: 'gauge',
+            detail: {formatter:'{value}%'},
+            data: [{value: 10, name: 'CPU使用率'}]
+        }
+    ]
+};
+
+
+       t1=setInterval(function () {
+
+    $.get("{% url "get_cpu" %}", {'host_ip':'{{host_obj.IPaddr}}', 'host_port':'{{host_obj.port}}'},
+
+    function (ret) {
+
+
+
+             option.series[0].data[0].value = (JSON.parse(ret)["cpu"]* 100).toFixed(2) - 0;
+             option1.series[0].data[0].value = (JSON.parse(ret)["mem"]* 100).toFixed(2) - 0;
+
+             myChart.setOption(option, true);
+             myChart1.setOption(option1, true);
+    }
+
+    )
+
+
+
+},10000);
+
+
+
+
+
+  })
+
+
+        // 指定图表的配置项和数据
+
+
+
+
+
+
+
+
+
+    </script>
+{% endblock %}
