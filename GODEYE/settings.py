@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'GOD.apps.GodConfig',
     'django_celery_beat',
+     
+   
+     
 
 ]
 

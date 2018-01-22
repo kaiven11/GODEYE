@@ -4,10 +4,8 @@
 此类用来让判断用户的task
 分发器模式
 """
-import os,django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "GODEYE.settings")# project_name 项目名称
-django.setup()
-from backend import tackle_task
+from . import global_settings
+#from backend import tackle_task
 # from django.conf import settings
 from GODEYE import settings
 import  os
@@ -52,8 +50,8 @@ class Muiltiple_task():
         # hostgroup=self.request.POST.get("group")
         hostselected=self.request.POST.getlist("selected_host")#这里暂时处理前端提交的未分组的机器
         print(hostselected,type(hostselected))
-        hostselected_str=[",".join(i) for i in hostselected]
-        print(hostselected_str)
+        #hostselected_str=[",".join(i) for i in hostselected]
+        #print(hostselected_str)
         # if hostgroup:
         #     models.get(group).valuelist()
         # if hostselected:
@@ -67,9 +65,13 @@ class Muiltiple_task():
         #创建任务日志
 
         task_obj=models.TaskLog.objects.create(tag_name="a",user=self.request.user,task_type=self.tasktype,cmd_str=cmd)
-        print(type(self.request.user.id))
+        if task_obj:
+           print("sucess")
+           task_obj.host_list.add(*hostselected)
+           print(task_obj.host_list.all())
+        
         p=subprocess.Popen(["python",settings.TACKLE_SCRIPTS,"-tasktype",self.tasktype,
-                          #"-host",hostselected,
+                          "-host",','.join(hostselected),
                           "-userid",str(self.request.user.id),
                           "-cmd_str",cmd,
                           "-taskid",str(task_obj.id),
@@ -82,8 +84,9 @@ class Muiltiple_task():
         
         #write the "taskdetail" log 
         for i in hostselected:
+           
 
-            models.Taskdetail.objects.create(children_task_id=task_obj.id,status=0,event_log='',bind_host_id=i)
+            models.Taskdetail.objects.create(children_task_id=task_obj.id,result="unknow",event_log='',bind_host_id=i)
        	
         return task_obj.id
 

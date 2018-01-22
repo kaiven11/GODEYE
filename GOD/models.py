@@ -194,24 +194,24 @@ class TaskLog(models.Model):
     task_time=models.DateTimeField(auto_now_add=True)
     task_type_choices = (('cmd', "CMD"), ('file_send', "批量发送文件"), ('file_get', "批量下载文件"))
     task_type = models.CharField(choices=task_type_choices, max_length=50)
-    #hosts = models.ManyToManyField('BindHosts')
+    host_list = models.ManyToManyField('BindHosts')
 
     def __str__(self):
-        return self.tag_name
+        return "%s:%s" %(self.id,self.tag_name)
     class Meta:
         verbose_name_plural="任务日志"
         verbose_name="任务日志"
 
 
 class Taskdetail(models.Model):
-    children_task=models.ForeignKey("TaskLog",on_delete=models.DO_NOTHING)
-    status_choice=((0,"failed"),(1,"sucess"),(2,"unknow"))
-    status=models.PositiveIntegerField(choices=status_choice)
+    children_task=models.ForeignKey("TaskLog")
+    result_choices= (('success','Success'),('failed','Failed'),('unknown','Unknown'))
+    result = models.CharField(choices=result_choices,max_length=30,default='unknown')
     date=models.DateTimeField(auto_now_add=True)
     event_log=models.TextField()
     bind_host=models.ForeignKey('BindHosts',on_delete=models.DO_NOTHING)
     def __str__(self):
-        return self.id
+       return "child of:%s result:%s" %(self.children_task.id, self.result)
 
 
     class Meta:

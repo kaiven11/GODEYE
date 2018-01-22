@@ -86,7 +86,7 @@ class TaskLogAdmin(admin.ModelAdmin):
     list_display = ('id','tag_name','user','task_pid','task_time','task_type')
 
 class TaskdetailAdmin(admin.ModelAdmin):
-    list_display = ('id','children_task','status','event_log','bind_host')
+    list_display = ('children_task','result','date','bind_host','event_log')
 
 admin.site.register(models.HostGroups)
 admin.site.register(models.Host)
