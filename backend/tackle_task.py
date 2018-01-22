@@ -33,7 +33,7 @@ def  cmd_eva(task_id,bind_hosts_id,cmd_str,port,user):
     SSHClient=paramiko.SSHClient()
     SSHClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-      SSHClient.connect(port=port,password=password,hostname=hostname,timeout=5)
+      SSHClient.connect(port=port,password=password,hostname=hostname)
       stdin, stdout, stderr=SSHClient.exec_command(cmd_str)
       result=stdout.read() or stderr.read()
       host_log.result="success"

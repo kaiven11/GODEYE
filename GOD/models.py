@@ -197,7 +197,7 @@ class TaskLog(models.Model):
     host_list = models.ManyToManyField('BindHosts')
 
     def __str__(self):
-        return "%s:%s" %(self.id,self.tag_name)
+        return "%s"%(self.id)
     class Meta:
         verbose_name_plural="任务日志"
         verbose_name="任务日志"

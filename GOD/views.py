@@ -162,8 +162,16 @@ def muilt_cmd(request):
             ret=muilti_task.Muiltiple_task("cmd",request)
             a=ret.run()
             print("ret---",a)
+            return  HttpResponse(json.dumps(a))
+        if request.method=="GET":
+            task_id=request.GET.get('task_id')
+            task_detail_list=models.TaskLog.objects.get(id=int(task_id))
+            if task_detail_list:
+               detail_list_host=task_detail_list.taskdetail_set.values("bind_host","result","event_log")
+               
+            return HttpResponse(json.dumps(list(detail_list_host)))
             
-            return  HttpResponse(a)
+            
 
 
     return render(request,"host_task.html",{'ugroup_host':ugroup_host})
