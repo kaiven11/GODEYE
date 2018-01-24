@@ -17,8 +17,18 @@ import multiprocessing
 from GOD import models
 
 #将命令处理结果写入到taskdetail中
-def  cmd_eva(task_id,bind_hosts_id,cmd_str,port,user):
-   
+def  cmd_eva(task_id,bind_hosts_id,cmd_str,port,user,local_file_path,remote_path):
+    '''
+
+    :param task_id:
+    :param bind_hosts_id:
+    :param cmd_str:
+    :param port:
+    :param user:
+    :param local_file_path:
+    :param remote_path:
+    :return:
+    '''
    
     print("---start---")
    
@@ -33,7 +43,7 @@ def  cmd_eva(task_id,bind_hosts_id,cmd_str,port,user):
     SSHClient=paramiko.SSHClient()
     SSHClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-      SSHClient.connect(port=port,password=password,hostname=hostname)
+      SSHClient.connect(port=port,password=password,hostname=hostname,timeout=5)
       stdin, stdout, stderr=SSHClient.exec_command(cmd_str)
       result=stdout.read() or stderr.read()
       host_log.result="success"
@@ -42,10 +52,10 @@ def  cmd_eva(task_id,bind_hosts_id,cmd_str,port,user):
       SSHClient.close()
   
       print('----end----')
-    except Exception as msg:
-      print(msg)
+    except Exception as e:
+      print(e)
       host_log.result="failed"
-      host_log.event_log=msg
+      host_log.event_log=e
       host_log.save()
       print('----exception---',e)
     #写入数据库taskdetail
@@ -53,8 +63,31 @@ def  cmd_eva(task_id,bind_hosts_id,cmd_str,port,user):
   
 
 
-def upload_file(remote_path):
-    pass
+def upload_file(taskid,bindhostid,cmd_str,port,userid,local_file_path,remote_path):
+    host_obj=models.BindHosts.objects.get(id=bindhostid)
+    print(host_obj,"主机")
+    username=host_obj.host_user.username
+    password=host_obj.host_user.password
+    port=host_obj.host.port
+    ipaddr=host_obj.host.IPaddr
+
+
+    print(os.path.basename(local_file_path))
+
+    filename=os.path.basename(local_file_path)
+    print(local_file_path, os.path.join(remote_path, filename))
+    transport=paramiko.Transport((ipaddr,port))
+    transport.connect(username=username,password=password)
+    sftp=paramiko.SFTPClient.from_transport(transport)
+
+    sftp.put(local_file_path,remote_path+"%s%s"%(r"/",filename))
+    sftp.close()
+    print("sendfile_ok!")
+    # 写入日志信息
+
+
+
+
 
 def download_file(remote_path):
     pass
@@ -73,22 +106,27 @@ if __name__=="__main__":
    print(sys.argv[1:])
    lack_args = [arg for arg in require_args if arg not in sys.argv[1:]]
    print(lack_args)
-   if len(lack_args)>0:
-       sys.exit("lack of args"%lack_args)
+   # if len(lack_args)>0:
+   #     sys.exit("lack of args"%lack_args)
    
    task_type=sys.argv[sys.argv.index("-tasktype")+1]
    bind_hosts_id=sys.argv[sys.argv.index('-host')+1]
    cmd_str=sys.argv[sys.argv.index('-cmd_str')+1]
    userid=sys.argv[sys.argv.index('-userid')+1]
    taskid=sys.argv[sys.argv.index('-taskid')+1]
-   task_list=[]
+   taskid=sys.argv[sys.argv.index('-taskid')+1]
+
    if task_type=="cmd":
-          cmd_exec=cmd_eva
-   
+
+       cmd_exec=cmd_eva
+   if task_type=="file_upload":
+       cmd_exec=upload_file
+       remote_path = sys.argv[sys.argv.index('-remote_path')+1]
+       local_file_path=sys.argv[sys.argv.index('-local_file_path')+1]
    for i in bind_hosts_id.split(','):
-           print(type(i))
+           print(i)
            p=multiprocessing.Pool(processes=8)
-           p.apply_async(cmd_exec,args=(taskid,i,cmd_str,22,userid,))
+           p.apply_async(cmd_exec,args=(taskid,i,cmd_str,22,userid,local_file_path,remote_path))
            
    
    p.close()
@@ -96,6 +134,7 @@ if __name__=="__main__":
    
       
    
+
 
 
 

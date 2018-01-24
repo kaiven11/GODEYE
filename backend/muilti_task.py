@@ -75,7 +75,7 @@ class Muiltiple_task():
                           "-userid",str(self.request.user.id),
                           "-cmd_str",cmd,
                           "-taskid",str(task_obj.id),
-                          ],preexec_fn=os.setsid)#设置一个进程组，方便后期结束整个任务
+                          ],)#设置一个进程组，方便后期结束整个任务
 
         pid=p.pid
         task_obj.task_pid=pid
@@ -100,7 +100,37 @@ class Muiltiple_task():
 
 
     def file_upload(self):
-        pass
+        print(self.request.POST.get("remote_value"))
+        remote_path=self.request.POST.get("remote_value")
+        local_file_name=str(self.request.FILES['file'])
+        local_file_path=os.path.join(settings.UPLOAD_DIRS,local_file_name)
+        print(remote_path,local_file_path)
+        hostselected=self.request.POST.get('selected_host')
+        hostselected=hostselected.split(',')
+        print(hostselected)
+        #创建日志
+        task_obj=models.TaskLog.objects.create(
+                                      tag_name=self.tasktype,
+                                      user=self.request.user,
+                                      task_type="file_send",
+                                      remote_path=remote_path,
+
+                                      )
+
+        p = subprocess.Popen(["python", settings.TACKLE_SCRIPTS, "-tasktype", self.tasktype,
+                              "-host", ','.join(hostselected),
+                              "-userid", str(self.request.user.id),
+                              "-taskid", str(task_obj.id),
+                              "-cmd_str","",
+                              "-remote_path",remote_path,
+                              "-local_file_path",local_file_path
+                              ])  # 设置一个进程组，方便后期结束整个任务
+
+        pid = p.pid
+        task_obj.task_pid = pid
+        task_obj.save()
+
+        return None
     def file_donwload(self):
         pass
 

@@ -195,9 +195,10 @@ class TaskLog(models.Model):
     task_type_choices = (('cmd', "CMD"), ('file_send', "批量发送文件"), ('file_get', "批量下载文件"))
     task_type = models.CharField(choices=task_type_choices, max_length=50)
     host_list = models.ManyToManyField('BindHosts')
+    remote_path=models.CharField(max_length=128,null=True)
 
     def __str__(self):
-        return "%s"%(self.id)
+        return "%s:%s" %(self.id,self.tag_name)
     class Meta:
         verbose_name_plural="任务日志"
         verbose_name="任务日志"

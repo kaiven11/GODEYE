@@ -27,6 +27,7 @@
     
    <!--write the result -->
    <div id="result">
+     
       
    </div>
 
@@ -91,10 +92,13 @@ function getChkValue(val){
                             var ele_val=$('input[name="selected_host"]')
                             ret=JSON.parse(data)
                             for (var key in ret ){
+                                 console.log(ret)
                                 var ttt=getChkValue(ret[key].bind_host)
-                                ele_div.append(ttt)
+                                
+                              
+                                ele_div.append('<span style="clolor:gray;display:inline-block">'+ttt+'</span>')
                                 ele_div.append(ret[key].result)
-                                ele_div.append(ret[key].event_log)
+                                ele_div.append('<pre>'+ret[key].event_log+'</pre>')
                               
                                 
                              }

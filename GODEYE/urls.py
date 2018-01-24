@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^host_info/(\d+)', views.host_info,name="host_info"),
     url(r'^get_cpu', views.get_cpu,name="get_cpu"),
     url(r'^muilt_cmd/$', views.muilt_cmd,name="muilt_cmd"),
+    url(r'^file_upload/$', views.file_upload,name="file_upload"),
 ]

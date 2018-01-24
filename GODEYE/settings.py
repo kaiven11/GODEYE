@@ -166,6 +166,10 @@ LOGIN_URL='/account/login'
 TACKLE_SCRIPTS=os.path.join(BASE_DIR,"backend/tackle_task.py")
 
 
+#Upload dir
+
+UPLOAD_DIRS=os.path.join(BASE_DIR,'upload')
+
 #for celery
 
 CELERY_BROKER_URL='redis://192.168.31.162'
