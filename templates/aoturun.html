@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block css %}
+
+
+{% endblock %}
+
+
+
+{% block content %}
+<form id="commentForm" method="post" action="" class="form-horizontal">
+<div id="rootwizard">
+	<ul>
+	  	<li><a href="#tab1" data-toggle="tab">First</a></li>
+		<li><a href="#tab2" data-toggle="tab">Second</a></li>
+		<li><a href="#tab3" data-toggle="tab">Third</a></li>
+	</ul>
+	<div class="tab-content">
+	    <div class="tab-pane" id="tab1">
+             {% for i in taskplan %}
+	    	<div class="control-group">
+			    <label class="control-label" for="{{ i.name }}">{{ i.label }}</label>
+			    <div class="controls">
+			      {{ i }}
+                    <button type="button" id="task_plan" class="btn btn-success">提交</button>
+			    </div>
+			  </div>
+              {% endfor %}
+
+	    </div>
+	    <div class="tab-pane" id="tab2">
+
+	      {% for i in taskstage %}
+	    	<div class="control-group">
+			    <label class="control-label" for="{{ i.name }}">{{ i.label }}</label>
+			    <div class="controls">
+			      {{ i }}
+                    <button type="button" id="task_stage" class="btn btn-success">提交</button>
+			    </div>
+			  </div>
+              {% endfor %}
+	    </div>
+		<div class="tab-pane" id="tab3">
+			 {% for i in taskplan %}
+	    	<div class="control-group">
+			    <label class="control-label" for="{{ i.name }}">{{ i.label }}</label>
+			    <div class="controls">
+			      {{ i }}
+			    </div>
+			  </div>
+              {% endfor %}
+	    </div>
+		<ul class="pager wizard">
+			<li class="previous first" style="display:none;"><a href="#">First</a></li>
+			<li class="previous"><a href="#">Previous</a></li>
+			<li class="next last" style="display:none;"><a href="#">Last</a></li>
+		  	<li class="next"><a href="#">Next</a></li>
+		</ul>
+	</div>
+</div>
+
+<button type="submit" class="btn btn-success">提交</button>
+</form>
+
+
+
+
+{% endblock %}
+
+
+
+{% block script %}
+
+         <script>
+      $(function () {
+          $('#opt1').removeClass('active')
+          $('#opt7').addClass('active')
+
+	  	$('#rootwizard').bootstrapWizard();
+
+         if ("WebSocket" in window)
+            {
+                alert("您的浏览器支持 WebSocket!");}
+      })
+
+        $('#task_plan').click(function () {
+            console.log($(this).prev().val())
+            var val1=$(this).prev().val();
+            $.post("{% url "taskplan" %}",{"taskplan":val1},function (data) {
+
+            })
+
+
+
+        })
+
+
+
+
+    </script>
+
+{% endblock %}
+

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block css %}
+{% endblock %}
+
+
+
+{% block content %}
+
+   <h2>未分组</h2>
+{% for item in ugroup_host %}
+    <div class="checkbox">
+        <label>
+          <input type="checkbox" name="selected_host" value="{{ item.id }}"> {{ item }}
+        </label>
+      </div>
+
+
+
+{% endfor %}
+
+    上传至远程主机目录：<input id="remote" type="text" name="remote_path" />
+     <form class="mydropzone" id="filedropzone" action="{{ request.path }}" style="height: 100px;border: dashed 1px lightblue">{% csrf_token %}
+     <input type="hidden" id="remote_path" name="remote_value" value="">
+     <input type="hidden" id="selected_host" name="selected_host" value="">
+     </form>
+<button type="button" class="btn btn-success pull-right" id="btUploadAll">提交</button>
+
+
+
+{% endblock %}
+
+
+
+
+
+{% block script %}
+
+         <script>
+      $(function () {
+          $('#opt1').removeClass('active')
+          $('#opt4').addClass('active')
+          //bind_task();
+
+          //dropzone js
+                Dropzone.autoDiscover=false
+         mydropzone=new Dropzone('#filedropzone', {
+             url:'{{ request.path }}', //提交的路径
+            paraName:"file", //相当于 input type=file 默认的name属性
+            addRemoveLinks: true, //是否条件删除文件的链接
+            dictRemoveLinks: "x",
+            dictCancelUpload: "x",
+            maxFiles: 1, //文件数量
+            maxFilesize: 1000, //每个文件的大小
+            uploadMultiple:false, // 是否允许一次提交多个文件
+              acceptedFiles:'.zip', //接受的文件类型
+                 dictDefaultMessage: "拖拽图片或者点击",
+            dictFileTooBig: "图片最大5M",
+            dictInvalidFileType: "只能上传图片",
+            dictRemoveFile: "移除",
+             autoProcessQueue: false,
+               init: function() {
+                 var btUploadAll = $("#btUploadAll"); //这里为了使用jqeury的一些方法
+        var submitButton = document.getElementById("btUploadAll")
+       // mydropzone = this; // closure
+        //为上传按钮添加点击事件
+        submitButton.addEventListener("click", function () {
+
+            if ($('input:checked').length<=0){
+                alert('请先选择主机')
+                return false;
+            }
+
+            //$.post('{{ request.path }}',{'remote':$('#remote').val()})
+            $('#remote_path').val($('#remote').val())
+            var array=new Array()
+            $('input:checked').each(function () {
+                array.push($(this).val())
+            })
+            $('#selected_host').val(array)
+            btUploadAll.attr("disabled", true);
+
+
+            //手动上传所有图片
+            mydropzone.processQueue();
+        });
+
+        //当添加图片后的事件，上传按钮恢复可用
+        this.on("addedfile", function () {
+            btUploadAll.removeAttr("disabled");
+
+        });
+            this.on("success", function(file) {
+                console.log("File " + file.name + "uploaded");
+            });
+            this.on("removedfile", function(file) {
+                console.log("File " + file.name + "removed");
+            });
+
+
+            this.on("uploadprogress",function (file,progress ,bytesSent) {
+
+                $('.dz-details').after("<span class='tt'></span>").text(parseInt(progress))
+                if (parseInt(progress)==100){
+                     alert('已经上传到后台，开始向选择主机分发！')
+                    btUploadAll.attr("disabled", false);
+                }
+
+
+
+
+            })
+
+
+
+
+        }
+
+
+
+
+
+
+
+        })
+    })
+
+
+
+
+
+
+
+    </script>
+
+{% endblock %}

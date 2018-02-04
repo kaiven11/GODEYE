@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'GOD.apps.GodConfig',
     'django_celery_beat',
 
+     
+   
+     
+
 ]
 
 MIDDLEWARE = [
@@ -84,6 +88,16 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'PerfectCRM',
+#         'USER': 'root',
+#         'PASSWORD': '666',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -160,11 +174,36 @@ LOGIN_URL='/account/login'
 
 #任务脚本
 
-TACKLE_SCRIPTS=os.path.join(BASE_DIR,"tackle_task.py")
-
+TACKLE_SCRIPTS=os.path.join(BASE_DIR,"backend/tackle_task.py")
+UPLOAD_DIRS=os.path.join(BASE_DIR,'upload')
 
 #for celery
 
 CELERY_BROKER_URL='redis://192.168.31.162'
 CELERY_RESULT_BACKEND='redis://192.168.31.162'
 CELERYD_MAX_TASKS_PER_CHILD = 3
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+
+#for email
+'''
+# 一、POP3收邮件：
+# POP3: 110
+# POP3 SSL: 995
+# 二、IMAP收邮件：
+# IMAP: 143
+# IMAP SSL: 993
+# 三、SMTP发邮件：
+# SMTP: 25
+# SMTP SSL: 465
+# SMTP TLS: 587
+'''
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_USE_SSL = True
+
+EMAIL_HOST = 'smtp.126.com'  # 如果是 163 改成 smtp.163.com
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'fengchubojue@126.com' # 帐号
+EMAIL_HOST_PASSWORD = '123456q'  # 密码
+DEFAULT_FROM_EMAIL = 'fengcFhubojue <fengchubojue@126.com>'
+
