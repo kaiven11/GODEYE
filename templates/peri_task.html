@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load email_func %}
+{% block css %}
+{% endblock %}
+
+
+
+{% block content %}
+
+{#   <h2>未分组</h2>#}
+{#{% for item in ugroup_host %}#}
+{#    <div class="checkbox">#}
+{#        <label>#}
+{#          <input type="checkbox" name="selected_host" value="{{ item.id }}"> {{ item }}#}
+{#        </label>#}
+{#      </div>#}
+
+    定时任务
+
+   <h1 class="page-header">任务信息</h1>
+
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">任务信息</div>
+  <div class="panel-body">
+      <div class="pull-right"><a href="{% url "prio_task_add" %}">添加</a></div>
+    <p>显示当前所有任务</p>
+  </div>
+
+  <!-- Table -->
+    <div class="container" >
+        <div class="row">
+{#            <div class="col-lg-3 col-lg-offset-1" id="cpu" style="width: 400px;height:400px;"></div>#}
+{#            <div class="col-lg-3 col-lg-offset-1" id="mem" style="width: 400px;height:400px;"></div>#}
+
+           <table class="table table-striped" >
+               <tr>
+                    <td>#</td>
+                   <th>邮件标题</th>
+                   <th>邮件接收者</th>
+
+                   <th>任务名（用户定义）</th>
+
+                   <th>执行模块</th>
+                   <th>执行周期</th>
+                   <th>是否启用</th>
+               </tr>
+               {% for item in ret %}
+
+                   <tr>
+
+                      <td><a href="{% url "peri_task_edit" item.id %}" id="{{ item.id }}" >{{ item.id }}</a></td>
+                       {% email_tackle item.kwargs %}
+                       <td>{{ item.name }}</td>
+                      <td>{{ item.task }}</td>
+                      <td>{{ item.crontab }}</td>
+                      <td>{{ item.enabled }}</td>
+                   </tr>
+               {% endfor %}
+           </table>
+        </div>
+    </div>
+    <hr>
+</div>
+
+
+{% endblock %}
+
+
+
+
+
+{% block script %}
+
+         <script>
+      $(function () {
+          $('#opt1').removeClass('active')
+          $('#opt6').addClass('active')
+
+
+      })
+
+
+
+    </script>
+
+{% endblock %}
+
+

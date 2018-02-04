@@ -1,20 +1,18 @@
 #coding=utf-8
-class Factory:
-    def createFruit(self,zz):
-        if zz=="apple":
-            return Apple()
-        elif zz=="banana":
-                return Banana()
-# class Fruit:
-#     def __str__(self):
-#         return "fruit"
-class  Apple():
-    def __str__(self):
-        return "apple"
-class Banana():
-    def __str__(self):
-        return "banana"
-if __name__=="__main__":
-            factory=Factory()
-            print (factory.createFruit("apple") )
-            print (factory.createFruit("banana")  )
+class Test(object):
+    a = "Hello world!"
+
+    def __init__(self): pass
+
+    def test(self):
+        # 在内部self.a和Test.a都可以访问实例变量
+        Test.a="adfadf"
+        print(Test.a)
+
+
+
+
+
+
+A = Test()
+A.test()

@@ -4,20 +4,29 @@
 此类用来让判断用户的task
 分发器模式
 """
-import os,django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "GODEYE.settings")# project_name 项目名称
-django.setup()
-from backend import tackle_task
+
+#from backend import tackle_task
 # from django.conf import settings
+import os,sys
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "GODEYE.settings")
+base_dir = '/'.join(os.path.abspath(os.path.dirname(__file__)).split("/")[:-1])
+sys.path.append(base_dir)
+import django
+django.setup()
+
 from GODEYE import settings
 import  os
 import subprocess
 from GOD import models
 
+
+
 class Muiltiple_task():
+    type_file = ""
     def __init__(self,tasktype,request_info):
         self.tasktype=tasktype
         self.request=request_info
+
         # self.parase_type(self.tasktype)
 
     def parase_type(self,type):
@@ -27,14 +36,16 @@ class Muiltiple_task():
             type_obj=getattr(self,"run_cmd")
 
         elif self.tasktype=="file_upload":
+            self.type_file="file_upload"
             type_obj=getattr(self,"file_upload")
         else:
             type_obj=getattr(self,"file_donwload")
+            self.type_file = "file_donwload"
         return type_obj
 
     def run(self):
         a=self.parase_type(self.tasktype)
-        a()
+        return a()
 
 
 
@@ -48,9 +59,12 @@ class Muiltiple_task():
         print("there")
         cmd=self.request.POST.get('cmd')
         print(cmd)
-        assert cmd
+        #assert cmd
         # hostgroup=self.request.POST.get("group")
         hostselected=self.request.POST.getlist("selected_host")#这里暂时处理前端提交的未分组的机器
+        print(hostselected,type(hostselected))
+        #hostselected_str=[",".join(i) for i in hostselected]
+        #print(hostselected_str)
         # if hostgroup:
         #     models.get(group).valuelist()
         # if hostselected:
@@ -63,19 +77,31 @@ class Muiltiple_task():
         #约定参数  -tasktype,host,
         #创建任务日志
 
-        task_obj=models.TaskLog.objects.create(user=self.request.user,task_type=self.tasktype,cmd_str=cmd)
-        p=subprocess.Popen([r"c:\Python3.4\python",settings.TACKLE_SCRIPTS,"-tasktype",self.tasktype,
-                          "-host",hostselected,
-                          "-userid",self.request.user.id,
+        task_obj=models.TaskLog.objects.create(tag_name="a",user=self.request.user,task_type=self.tasktype,cmd_str=cmd)
+        if task_obj:
+           print("sucess")
+           task_obj.host_list.add(*hostselected)
+           print(task_obj.host_list.all())
+        
+        p=subprocess.Popen(["python",settings.TACKLE_SCRIPTS,"-tasktype",self.tasktype,
+                          "-host",','.join(hostselected),
+                          "-userid",str(self.request.user.id),
                           "-cmd_str",cmd,
-                          "-taskid",task_obj.id
-                          ],preexec_fn=os.setsid())#设置一个进程组，方便后期结束整个任务
+                          "-taskid",str(task_obj.id),
+                          ])#设置一个进程组，方便后期结束整个任务
 
         pid=p.pid
         task_obj.task_pid=pid
+        print(task_obj.id)
         task_obj.save()
-        result=p.stderr.read() or p.stdout.read()
-        return result
+        
+        #write the "taskdetail" log 
+        for i in hostselected:
+           
+
+            models.Taskdetail.objects.create(children_task_id=task_obj.id,result="unknow",event_log='',bind_host_id=i)
+       	
+        return task_obj.id
 
 
 
@@ -87,7 +113,41 @@ class Muiltiple_task():
 
 
     def file_upload(self):
-        pass
+        print(self.request.POST.get("remote_value"))
+        remote_path=self.request.POST.get("remote_value")
+        local_file_name=str(self.request.FILES['file'])
+        local_file_path=os.path.join(settings.UPLOAD_DIRS,local_file_name)
+        print(remote_path,local_file_path)
+        hostselected=self.request.POST.get('selected_host')
+        hostselected=hostselected.split(',')
+        print(hostselected)
+        #创建日志
+        task_obj=models.TaskLog.objects.create(
+                                      tag_name=self.tasktype,
+                                      user=self.request.user,
+                                      task_type="file_send",
+
+                                      remote_path=remote_path,
+
+                                      )
+
+        p = subprocess.Popen(["python", settings.TACKLE_SCRIPTS, "-tasktype", self.tasktype,
+                              "-host", ','.join(hostselected),
+                              "-userid", str(self.request.user.id),
+                              "-taskid", str(task_obj.id),
+                              "-cmd_str","",
+                              "-remote_path",remote_path,
+                              "-local_file_path",local_file_path
+                              ])  # 设置一个进程组，方便后期结束整个任务
+
+        pid = p.pid
+        task_obj.task_pid = pid
+        task_obj.save()
+        for i in hostselected:
+            models.Taskdetail.objects.create(children_task_id=task_obj.id, result="unknow", event_log='',
+                                             bind_host_id=i)
+        return None
+
     def file_donwload(self):
         pass
 
@@ -95,3 +155,8 @@ class Muiltiple_task():
 
 # a.run("df")
 # a=Muiltiple_task("cmd",request_info="a")
+
+
+
+
+

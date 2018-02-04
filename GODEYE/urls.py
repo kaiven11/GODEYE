@@ -29,4 +29,11 @@ urlpatterns = [
     url(r'^host_info/(\d+)', views.host_info,name="host_info"),
     url(r'^get_cpu', views.get_cpu,name="get_cpu"),
     url(r'^muilt_cmd/$', views.muilt_cmd,name="muilt_cmd"),
+    url(r'^file_upload/$', views.file_upload,name="file_upload"),
+    url(r'^prio_task/$', views.prio_task,name="prio_task"),
+    url(r'^prio_task/add$', views.prio_task_add,name="prio_task_add"),
+    url(r'^prio_task/edit-(?P<pid>(\d+))$', views.peri_task_edit,name="peri_task_edit"),
+    url(r'^autorun$', views.autorun,name="autorun"),
+    url(r'^taskplan$', views.tackle_task_plan,name="taskplan"),
+
 ]

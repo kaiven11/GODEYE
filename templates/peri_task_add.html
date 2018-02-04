@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load email_func %}
+{% block css %}
+{% endblock %}
+
+
+
+{% block content %}
+
+{#   <h2>未分组</h2>#}
+{#{% for item in ugroup_host %}#}
+{#    <div class="checkbox">#}
+{#        <label>#}
+{#          <input type="checkbox" name="selected_host" value="{{ item.id }}"> {{ item }}#}
+{#        </label>#}
+{#      </div>#}
+
+    定时任务
+
+   <h1 class="page-header">任务信息</h1>
+    {{ ret.errors }}
+    <form action="{{ request.path }}" method="post">
+
+       {{ ret.as_table }}
+
+
+
+
+        <button type="submit" class="btn btn-success">提交</button>
+
+    </form>
+
+
+{% endblock %}
+
+
+
+
+
+{% block script %}
+
+         <script>
+      $(function () {
+          $('#opt1').removeClass('active')
+          $('#opt6').addClass('active')
+
+          //添加和编辑共用一个页面，需要做出盘顿
+
+
+
+
+
+
+      })
+
+
+
+    </script>
+
+{% endblock %}
+
+

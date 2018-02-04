@@ -22986,7 +22986,7 @@ function completeDimensions(sysDims, data, opt) {
 
         availDimIdx < result.length && dataDims.push(availDimIdx++);
       }
-    } // Apply templates.
+    } // Apply templatetags.
 
 
     each$7(dataDims, function (resultDimIdx, coordDimIndex) {

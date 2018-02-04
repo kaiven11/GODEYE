@@ -3,7 +3,14 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from backend import muilti_task
+from django_celery_beat import  models as celery_models
 
+from django.dispatch import receiver
+from django.core import signals
+
+
+
+from GOD import froms
 
 from backend import get_info
 import io
@@ -87,6 +94,7 @@ def OverView(request):
     return render(request,'base.html')
 
 @login_required
+# @receiver(signals.request_finished)
 def log_out(request):
     logout(request)
     return redirect('/account/login')
@@ -149,6 +157,7 @@ def muilt_cmd(request):
     #未分组主机
 
     ugroup_host=request.user.bind_host.all()
+    print(ugroup_host,request.user)
     # if request.method=="GET":
     #     pass
     if request.is_ajax():
@@ -160,17 +169,155 @@ def muilt_cmd(request):
             print("here")
             ret=muilti_task.Muiltiple_task("cmd",request)
             a=ret.run()
-            print(a)
-            return  HttpResponse(ret)
-
+            print("ret---",a)
+            
+            return  HttpResponse(a)
+        if request.method=="GET":
+            task_id=request.GET.get('task_id')
+            task_detal_queryset=models.TaskLog.objects.get(id=task_id).taskdetail_set.values('result')
+            print(task_detal_queryset)
 
     return render(request,"host_task.html",{'ugroup_host':ugroup_host})
 
+@login_required
+@csrf_exempt
+def file_upload(request):
+    if request.is_ajax():
+        if request.method == "POST":
+
+            for k,v in request.FILES.items():
+                #print(type(str(request.FILES['file'])))
+                with open(os.path.join(settings.UPLOAD_DIRS,v.name),'wb') as e:
+                    for chunk in v.chunks():
+                        e.write(chunk)
+            file_up=muilti_task.Muiltiple_task("file_upload",request)
+            p=file_up.run()
+
+
+            return HttpResponse("aaa")
+    if request.method=="GET":
+        ugroup_host = request.user.bind_host.all()
+        return  render(request,'fileupload.html',{'ugroup_host':ugroup_host})
+
+
+@login_required
+@csrf_exempt
+
+def prio_task(request):
+    if request.method=="GET":
+        a=celery_models.PeriodicTask.objects.all()
+        print("task_prio",a)
+        ret=froms.PeriodicTaskForm()
+    if request.method=="POST":
+        obj=froms.PeriodicTaskForm(instance=request.POST)
+        if obj.is_valid():
+            obj.save()
+
+
+    return  render(request,"peri_task.html",{'ret':a})
+
+@login_required
+@csrf_exempt
+def prio_task_add(request):
+    if request.method=="GET":
+        ret = froms.PeriodicTaskForm()
+
+    if request.method=="POST":
+        ret=froms.PeriodicTaskForm(request.POST)
+        if ret.is_valid():
+            #处理前台处理传过来的数据
+            # print(ret.cleaned_data)
+            email_dict={}
+            # email_subject=ret.cleaned_data.get("email_subject")
+            # email_from=ret.cleaned_data.get("email_from")
+            # email_to=ret.cleaned_data.get("email_to")
+            # email_content=ret.cleaned_data.get("email_content")
+            for k,v in ret.cleaned_data.items():
+                if k.startswith("email"):
+                    if k=="email_to":
+                        print(type(ret.cleaned_data[k]),ret.cleaned_data[k])
+                        email_dict[k]=v.split()
+                    email_dict[k]=v
+
+
+            print(email_dict)
+
+            ret.instance.kwargs=json.dumps(email_dict)
+            print(ret.cleaned_data)
 
 
 
 
 
+            ret.save(commit=True)
+    return render(request, "peri_task_add.html", {'ret': ret})
+
+
+#定时任务修改
+
+@login_required
+@csrf_exempt
+
+def peri_task_edit(request,pid):
+    peri_obj = celery_models.PeriodicTask.objects.get(id=pid)
+    if request.method=="GET":
+
+        ret=froms.PeriodicTaskForm(instance=peri_obj,initial={"email_subject":eval(peri_obj.kwargs).get("email_subject"),
+                                                              "email_content":eval(peri_obj.kwargs).get("email_content"),
+                                                              "email_to":eval(peri_obj.kwargs).get("email_to"),
+                                                              "regtask":peri_obj.task
+
+
+                                                              })
+    elif request.method=="POST":
+         ret=froms.PeriodicTaskForm(request.POST,instance=peri_obj)
+         if ret.is_valid():
+             ret.save()
+
+
+
+
+    return  render(request,"peri_task_edit.html",{"ret":ret,"kwarg":ret.instance.kwargs})
+
+
+
+@login_required
+@csrf_exempt
+
+def tackle_task_plan(reqeust):
+    if reqeust.is_ajax():
+        if reqeust.method=="POST":
+            taskplan=reqeust.POST.get("taskplan")
+            models.TaskPlan.objects.create(name=taskplan)
+            return  HttpResponse("ok")
+
+
+
+
+
+
+
+
+
+
+
+
+@login_required
+@csrf_exempt
+
+def autorun(request):
+    taskplan=froms.TaskPlanForm()
+    taskstage=froms.TaskStageForm()
+    taskjob=froms.TaskJobForm()
+    sshtask=froms.SSHTASKForm()
+    piptask=froms.PIPtaskForm()
+    gittask=froms.GITTASKForm()
+
+    if request.method=="POST":
+        print(request.POST)
+    elif request.method=="GET":
+
+        return render(request,"aoturun.html",{'taskplan':taskplan,"taskstage":taskstage})
 
 
 
