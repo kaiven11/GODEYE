@@ -82,10 +82,18 @@ class UserProfileAdmin(BaseUserAdmin):
 class UserLogAdmin(admin.ModelAdmin):
     list_display = ('name','user','bindhost','logtime')
 
+class TaskLogAdmin(admin.ModelAdmin):
+    list_display = ('id','tag_name','user','task_pid','task_time','task_type')
+
+class TaskdetailAdmin(admin.ModelAdmin):
+    list_display = ('children_task','result','date','bind_host','event_log')
+
 admin.site.register(models.HostGroups)
 admin.site.register(models.Host)
 admin.site.register(models.BindHosts)
 admin.site.register(models.UserProfile,UserProfileAdmin)
 admin.site.register(models.HostUser)
+admin.site.register(models.TaskLog,TaskLogAdmin)
+admin.site.register(models.Taskdetail,TaskdetailAdmin)
 admin.site.register(models.IDC)
 admin.site.register(models.UserLog,UserLogAdmin)

@@ -149,6 +149,7 @@ def muilt_cmd(request):
     #未分组主机
 
     ugroup_host=request.user.bind_host.all()
+    print(ugroup_host,request.user)
     # if request.method=="GET":
     #     pass
     if request.is_ajax():
@@ -160,11 +161,48 @@ def muilt_cmd(request):
             print("here")
             ret=muilti_task.Muiltiple_task("cmd",request)
             a=ret.run()
-            print(a)
-            return  HttpResponse(ret)
+            print("ret---",a)
+            return  HttpResponse(json.dumps(a))
+        if request.method=="GET":
+            task_id=request.GET.get('task_id')
+            task_detail_list=models.TaskLog.objects.get(id=int(task_id))
+            if task_detail_list:
+               detail_list_host=task_detail_list.taskdetail_set.values("bind_host","result","event_log")
+               print(json.dumps(list(detail_list_host)))
+            return HttpResponse(json.dumps(list(detail_list_host)))
+            
+            
 
 
     return render(request,"host_task.html",{'ugroup_host':ugroup_host})
+
+@login_required
+@csrf_exempt
+
+@login_required
+@csrf_exempt
+def file_upload(request):
+    if request.is_ajax():
+        if request.method == "POST":
+
+            for k,v in request.FILES.items():
+                #print(type(str(request.FILES['file'])))
+                with open(os.path.join(settings.UPLOAD_DIRS,v.name),'wb') as e:
+                    for chunk in v.chunks():
+                        e.write(chunk)
+            file_up=muilti_task.Muiltiple_task("file_upload",request)
+            p=file_up.run()
+
+
+            return HttpResponse("aaa")
+    if request.method=="GET":
+        ugroup_host = request.user.bind_host.all()
+        return  render(request,'fileupload.html',{'ugroup_host':ugroup_host})
+
+
+
+
+
 
 
 

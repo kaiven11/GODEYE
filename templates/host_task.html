@@ -11,7 +11,7 @@
 {% for item in ugroup_host %}
     <div class="checkbox">
         <label>
-          <input type="checkbox" name="selected_host" value="{{ item }}"> {{ item }}
+          <input type="checkbox" name="selected_host" value="{{ item.id }}"> {{ item }}
         </label>
       </div>
 
@@ -24,6 +24,12 @@
 
     <button id="btn" class="btn btn-success">提交</button>{% csrf_token %}
 
+    
+   <!--write the result -->
+   <div id="result">
+     
+      
+   </div>
 
 
 {% endblock %}
@@ -39,16 +45,72 @@
           $('#opt1').removeClass('active')
           $('#opt3').addClass('active')
           bind_task();
+          
 
-      })
+      })  
 
+
+
+
+
+function getChkValue(val){  
+    var obj=document.getElementsByName("selected_host");  
+    for(var i=0;i<obj.length;i++){  
+         if (obj[i].value==val){
+           return  obj[i].nextSibling.nodeValue
+          }
+       
+    }       
+    
+}  
+
+
+
+
+  
+           //$.ajaxSetup({async : false});
+            pid=0
          function bind_task() {
             $('#btn').click(function () {
                 var data1=$('input:checked').serialize()
                 var  cmdstr=$('input[name="cmd"]').val()
                 data1+="&cmd="+ cmdstr
                 console.log(data1)
-                $.post('{% url "muilt_cmd" %}',data1)
+                $.post('{% url "muilt_cmd" %}',data1,function(data){
+			pid=JSON.parse(data);
+                        
+                        
+                        
+		})
+               console.log(pid)
+	       p=setInterval(function () {
+                     $.get('{% url "muilt_cmd" %}',{'task_id':pid},function(data){
+                         if (data!=null){
+                           
+			//write the result to the html
+                            var ele_div=$('#result')
+                            var ele_val=$('input[name="selected_host"]')
+                            ret=JSON.parse(data)
+                            for (var key in ret ){
+                                 console.log(ret)
+                                var ttt=getChkValue(ret[key].bind_host)
+                                
+                              
+                                ele_div.append('<span style="clolor:gray;display:inline-block">'+ttt+'</span>')
+                                ele_div.append(ret[key].result)
+                                ele_div.append('<pre>'+ret[key].event_log+'</pre>')
+                              
+                                
+                             }
+		           
+
+
+                           clearInterval(p)
+                           
+
+                         }
+                     })
+                    },5000)
 
             })
          }
