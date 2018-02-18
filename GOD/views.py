@@ -4,10 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from backend import muilti_task
 from django_celery_beat import  models as celery_models
-
+from backend import runtask
 from django.dispatch import receiver
 from django.core import signals
-
+from channels import Group
 
 
 from GOD import froms
@@ -288,15 +288,44 @@ def tackle_task_plan(reqeust):
     if reqeust.is_ajax():
         if reqeust.method=="POST":
             taskplan=reqeust.POST.get("taskplan")
-            models.TaskPlan.objects.create(name=taskplan)
+            obj=models.TaskPlan.objects.create(planname=taskplan)
+            
+            Group('info').send({
+        'text': json.dumps({
+            'taskplan_name': obj.planname,
+            'taskplan_id':str(obj.id),
+            
+        })
+    })
+
+            return  HttpResponse("ok")
+
+
+@login_required
+@csrf_exempt
+def tackle_taskpstage(request):
+    
+    if request.is_ajax():
+         
+        if request.method=="POST":
+            taskstage_obj=froms.TaskStageForm(request.POST)
+            if taskstage_obj.is_valid():
+                 taskstage_obj.save()
+                 print("taskstage_obj",taskstage_obj.instance)
+            
+            Group('info').send({
+        'text': json.dumps({
+            'taskstage_name': taskstage_obj.instance.stagename,
+            'taskstage_id':str(taskstage_obj.instance.id),
+            
+        })
+    })
+
             return  HttpResponse("ok")
 
 
 
-
-
-
-
+froms.GITTASKForm() 
 
 
 
@@ -312,12 +341,85 @@ def autorun(request):
     sshtask=froms.SSHTASKForm()
     piptask=froms.PIPtaskForm()
     gittask=froms.GITTASKForm()
-
+    scptask=froms.SCPTaskForm()
     if request.method=="POST":
         print(request.POST)
     elif request.method=="GET":
 
-        return render(request,"aoturun.html",{'taskplan':taskplan,"taskstage":taskstage})
+	    return render(request,"aoturun.html",{'taskplan':taskplan,"taskstage":taskstage,'taskjob':taskjob,'sshtask':sshtask,'scptask':scptask,'gittask':gittask,'piptask':piptask})
+
+
+
+@login_required
+@csrf_exempt
+
+def tackle_taskjob(request):
+	if request.is_ajax():
+		if request.method=="POST":
+			print(request.POST)
+			#post the data to the sql
+			taskjob=froms.TaskJobForm(request.POST)
+			if taskjob.is_valid():
+				print('hi,it is hrere!!!')
+				taskjob.save(commit=True)
+				plugin=taskjob.instance.get_task_type_display()
+				if plugin=="sshtask":
+					sshtask=froms.SSHTASKForm(request.POST)
+					if sshtask.is_valid():
+						obj=sshtask.save(commit=False)
+						obj.taskjob=taskjob.instance
+						obj.save()
+						
+						obj.bindhosts.add(*sshtask.cleaned_data['bindhosts'])
+						
+						print(type(obj))
+						#sshtask.cleaned_data['taskjob']=taskjob.instance
+						#a=sshtask.cleaned_data.pop('bindhosts')
+						print('new_cleaned_data',sshtask.cleaned_data)
+						#b=models.SSHTASK.objects.create(**sshtask.cleaned_data)
+						#b.bindhosts.add(*a)
+						#print('this is job',sshtask.instance.bindhosts)
+			
+				if plugin=="gittask":
+					gittask=froms.GITTASKForm(request.POST)
+					if gittask.is_valid():
+						obj=gittask.save(commit=False)
+						obj.taskjob=taskjob.instance
+						obj.save()
+						obj.bindhosts.add(*gittask.cleaned_data['bindhosts'])
+
+
+				if plugin=="scptask":
+					scptask=froms.SCPTaskForm(request.POST)
+					print(scptask)
+					if scptask.is_valid():
+						obj=scptask.save(commit=False)
+						obj.taskjob=taskjob.instance
+						obj.save()
+						obj.bindhost.add(*scptask.cleaned_data['bindhost'])
+			
+			return HttpResponse('ok')
+
+
+
+
+
+
+
+@login_required
+@csrf_exempt
+
+def run_task(request):
+	if request.is_ajax():
+		if request.method=="POST":
+			print(request.POST)
+			a=runtask.exec_task(request.POST.get("plan_id"))
+			a.run()
+			return HttpResponse('ok')
+
+
+
+
 
 
 

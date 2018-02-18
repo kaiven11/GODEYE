@@ -239,19 +239,19 @@ class Emailcontent(models.Model):
 
 class TaskPlan(models.Model):
     '''总任务列表'''
-    name=models.CharField(max_length=64)
+    planname=models.CharField(max_length=64)
 
     def __str__(self):
-        return  self.name
+        return  self.planname
 
 
 class TaskStage(models.Model):
     '''任务阶段'''
-    name = models.CharField(max_length=64)
+    stagename = models.CharField(max_length=64)
     taskplan = models.ForeignKey('TaskPlan')
 
     def __str__(self):
-        return self.name
+        return self.stagename
 
 class TaskJob(models.Model):
     '''具体任务'''
@@ -264,7 +264,7 @@ class TaskJob(models.Model):
     )
     task_type=models.PositiveSmallIntegerField(choices=task_type_choices,default=0)
     def __str__(self):
-        return "%s:%s:%s"%(self.taskstage.taskplan.name,self.taskstage,self.id)
+        return "%s:%s"%(self.taskstage.taskplan.planname,self.taskstage)
 
 
 #下面是各种插件
@@ -273,11 +273,11 @@ class SSHTASK(models.Model):
     '''插件ssh'''
     # bindhost=models.ForeignKey('BindHosts')
     taskjob=models.OneToOneField('TaskJob')
-    bindhost=models.ManyToManyField("BindHosts",default=0)
+    bindhosts=models.ManyToManyField("BindHosts")
     exec_cmd=models.CharField(max_length=128)
-
+    order=models.PositiveIntegerField(default=1)
     def __str__(self):
-        return "%s:%s"% (self.taskjob.id,self.id)
+        return "%s" % self.exec_cmd
     class Meta:
         verbose_name="SSH插件"
         verbose_name_plural=verbose_name
@@ -286,10 +286,12 @@ class SCPTASK(models.Model):
     scp_type_choice=((0,"get"),
                      (1,"put")
                      )
-    bindhost = models.ForeignKey("BindHosts",default=0)
+    bindhost = models.ManyToManyField("BindHosts")
     scp_type=models.PositiveSmallIntegerField(choices=scp_type_choice)
     # bindhost = models.ForeignKey('BindHosts')
     taskjob = models.OneToOneField('TaskJob')
+
+    order=models.PositiveIntegerField(default=1)
     local_path=models.CharField(max_length=64)
     # remote_path=
     '''插件SCP'''
@@ -303,8 +305,11 @@ class SCPTASK(models.Model):
 
 class GITTASK(models.Model):
     '''插件GIT'''
+
+    order=models.PositiveIntegerField(default=1)
     git_url=models.URLField()
     taskjob = models.OneToOneField('TaskJob',default=0)
+    bindhost = models.ManyToManyField("BindHosts")
     def __str__(self):
         return "%s:%s" % (self.taskjob.id, self.id)
 
@@ -316,6 +321,8 @@ class GITTASK(models.Model):
 class PIPtask(models.Model):
     args=models.TextField(default="")
     taskjob = models.OneToOneField('TaskJob',default=0)
+    bindhost = models.ManyToManyField("BindHosts")
+    order=models.PositiveIntegerField(default=1)
     def __str__(self):
         return "%s:%s" % (self.taskjob.id, self.id)
 

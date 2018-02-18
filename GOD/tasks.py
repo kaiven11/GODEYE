@@ -4,7 +4,8 @@ from backend import get_info
 from django.core.mail import send_mail
 from GODEYE import settings
 import json
-
+import paramiko
+from GOD import models
 @shared_task #可以让其他的view视图调用
 def add(x, y):
  return x + y
@@ -47,5 +48,32 @@ def sendemail(*args,**kwargs):
               kwargs["email_to"].split(),
               fail_silently=False,
               )
+
+
+@shared_task
+
+def gittask(job_id):
+	gittask=models.TaskJob.objects.get(id=job_id).gittask
+	git_bindhosts=list(gittask.bindhost.all().values())
+	ssh=paramiko.SSHClient()
+	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+	for i in git_bindhosts:
+		host_obj=models.BindHosts.objects.get(id=i['id'])
+		host_ipaddr=host_obj.host.IPaddr
+		host_username=host_obj.host_user.username
+		host_password=host_obj.host_user.password
+		print(host_obj,host_ipaddr)
+		cmd_str=gittask.git_url
+		print(cmd_str)
+		
+		
+		try:
+		  ssh.connect(hostname=host_ipaddr,username=host_username,password=host_password)
+		  stdin,stdout,stderr=ssh.exec_command("git clone  %s"%cmd_str)
+		  result=stdout.read() or stderr.read()
+		  print(result.decode())
+		except Exception as e:
+			print(e)
+
 
 
