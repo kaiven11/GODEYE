@@ -14,21 +14,14 @@
 
 环境组件：
 
-django 1.10.2 + sqlite +centos7 +redis（celery的broken和backend）
+django 1.10.2 + mysql +centos7 +redis
 
 getpass （交互界面密码为*号）
 sshpass(免除登录时需要输入密码功能)
 channel(用于实时更新)
 celery (定时任务)
 paramiko(用于批量执行命令和上传下载功能)
-signle(无作用)
-
-此项目学习到：
-1.装饰器
-2.信号
-3.缓存
-4.websocket
-5.linux shell 脚本编写
+signle(记录用户操作日志)
 
 
 
