@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{%load	email_func%}
 {% block css %}
 
 
@@ -21,7 +21,9 @@
 	    	<div class="control-group">
 			    <label class="control-label" for="{{ i.name }}">{{ i.label }}</label>
 			    <div class="controls">
-			      {{ i }}
+		
+			    <input type="hidden" value="" id="plan_id" name="plan_id" />
+		      		    {{ i }}
                     <button type="button" id="task_plan" class="btn btn-success">提交</button>
 			    </div>
 			  </div>
@@ -35,21 +37,50 @@
 			    <label class="control-label" for="{{ i.name }}">{{ i.label }}</label>
 			    <div class="controls">
 			      {{ i }}
-                    <button type="button" id="task_stage" class="btn btn-success">提交</button>
+                   
 			    </div>
 			  </div>
               {% endfor %}
+
+               <button type="button" id="task_stage" class="btn btn-success">提交</button>
 	    </div>
 		<div class="tab-pane" id="tab3">
-			 {% for i in taskplan %}
+			 {% for i in taskjob %}
 	    	<div class="control-group">
 			    <label class="control-label" for="{{ i.name }}">{{ i.label }}</label>
 			    <div class="controls">
 			      {{ i }}
 			    </div>
 			  </div>
-              {% endfor %}
+              		{% endfor %}
+
+			<div>
+		<div target="sshtask" class='active'>
+			{{sshtask}}
+                 </div>
+
+		<div target="scptask" class='hide'>
+			{{scptask}}
+                 </div>
+
+		<div target="gittask" class='hide'>
+			{{gittask}}
+                 </div>
+		<div target="piptask" class='hide'>
+			{{piptask}}
+                 </div>
+	 </div>
+
+               <button type="button" id="task_job" class="btn btn-success">提交</button>
+ 
 	    </div>
+
+
+
+
+
+
+
 		<ul class="pager wizard">
 			<li class="previous first" style="display:none;"><a href="#">First</a></li>
 			<li class="previous"><a href="#">Previous</a></li>
@@ -59,9 +90,8 @@
 	</div>
 </div>
 
-<button type="submit" class="btn btn-success">提交</button>
+<button type="button" id="run_task" class="btn btn-success">Run Task!</button>
 </form>
-
 
 
 
@@ -76,25 +106,86 @@
           $('#opt1').removeClass('active')
           $('#opt7').addClass('active')
 
-	  	$('#rootwizard').bootstrapWizard();
+	  $('#rootwizard').bootstrapWizard();
 
          if ("WebSocket" in window)
             {
-                alert("您的浏览器支持 WebSocket!");}
+               var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    var ws_path = ws_scheme + '://' + window.location.host+'/autorun';
+    console.log("Connecting to " + ws_path)
+    var socket = new WebSocket(ws_path);
+
+    socket.onmessage = function(message) {
+         var data = JSON.parse(message.data);
+        console.log("Got message: " +message.data);
+         if (data.taskplan_name){
+         
+         $('#id_taskplan').append("<option value="+data.taskplan_id+">"+data.taskplan_name+"</option>")
+         $('#plan_id').val(data.taskplan_id) 
+	}
+    
+	 if (data.taskstage_name){
+	 
+	 
+         $('#id_taskstage').append("<option value="+data.taskstage_id+">"+data.taskstage_name+"</option>")
+	 } 
+    };
+
+            }
       })
 
         $('#task_plan').click(function () {
-            console.log($(this).prev().val())
+           
             var val1=$(this).prev().val();
-            $.post("{% url "taskplan" %}",{"taskplan":val1},function (data) {
+            $.post("{% url "taskplan" %}",{"taskplan":val1})});
 
-            })
+    
+       $('#task_stage').click(function () {
+            var taskplan=$('#id_taskplan option:selected').val();
+            var stage=$('#id_stagename').val();
+	    console.log(taskplan,stage)
+
+            $.post("{% url "taskpstage" %}",{"taskplan":taskplan,"stagename":stage})
+    	    	    
+           });
+     
+$('#id_task_type').change(function(){
+		
+		var p1=$(this).children('option:selected').text()
+	        	
+		$('div[target='+p1+']').removeClass('hide').siblings().addClass('hide')
+		
+		
+		
+		})
+
+//post the job data
 
 
 
-        })
+$('#task_job').click(function(){
+		
+		var sel_option=$('#id_task_type').children('option:selected').text()
+		console.log(sel_option)
+		
+		var a=$('#tab3').find('div :visible').serialize();
+		
+		$.post('{% url 'tackle_job'%}',a)		
+		
+		
+		
+		})
 
-
+$('#run_task').click(function(){
+		
+		$.post('{%url "run_task"%}',{"plan_id":$('#plan_id').val()},function(data){
+			
+			alert('start!')
+			})
+		
+		
+		
+		})
 
 
     </script>

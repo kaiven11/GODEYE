@@ -138,9 +138,8 @@ class TaskPlanForm(forms.ModelForm):
     class Meta:
         model=models.TaskPlan
         fields="__all__"
-        labels={
-            "name":"计划名称",
-        }
+   
+         
 
 
 class TaskStageForm(forms.ModelForm):
@@ -156,6 +155,11 @@ class TaskStageForm(forms.ModelForm):
         #     "name":"计划名称",
         # }
 
+class SCPTaskForm(forms.ModelForm):
+	class Meta:
+           model=models.SCPTASK
+           fields="__all__"
+           exclude=('taskjob',)
 class TaskJobForm(forms.ModelForm):
     class Meta:
         model=models.TaskJob
@@ -165,13 +169,16 @@ class SSHTASKForm(forms.ModelForm):
     class Meta:
         model=models.SSHTASK
         fields="__all__"
+        exclude=('taskjob',)
 
 class PIPtaskForm(forms.ModelForm):
     class Meta:
         model=models.PIPtask
         fields="__all__"
+        exclude=('taskjob',)
 
 class GITTASKForm(forms.ModelForm):
     class Meta:
         model=models.GITTASK
         fields="__all__"
+        exclude=('taskjob',)

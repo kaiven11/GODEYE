@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'GOD.apps.GodConfig',
     'django_celery_beat',
+    'channels',
 
      
    
@@ -206,4 +207,16 @@ EMAIL_PORT = 25
 EMAIL_HOST_USER = 'fengchubojue@126.com' # 帐号
 EMAIL_HOST_PASSWORD = '123456q'  # 密码
 DEFAULT_FROM_EMAIL = 'fengcFhubojue <fengchubojue@126.com>'
+
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)],
+        },
+        'ROUTING': 'GODEYE.routing.channel_routing',
+    }
+}
 

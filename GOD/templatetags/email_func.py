@@ -27,3 +27,26 @@ def format_value(arg):
 
     return mark_safe("dfd")
 
+#tackle the m2m data
+#@register.simple_tag
+
+#def tackle_m2m(form_obj):
+ #       print(form_obj,'this is a filed in form!')
+	#model_name=form_obj.Meta.model._meta.many_to_many
+	#for item in model_name:
+	#	m2m_data=item.rel.to.objects.all()
+	#for z in form_obj:
+
+
+
+
+
+
+
+
+
+
+
+
+
+

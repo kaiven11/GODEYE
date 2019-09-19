@@ -35,5 +35,8 @@ urlpatterns = [
     url(r'^prio_task/edit-(?P<pid>(\d+))$', views.peri_task_edit,name="peri_task_edit"),
     url(r'^autorun$', views.autorun,name="autorun"),
     url(r'^taskplan$', views.tackle_task_plan,name="taskplan"),
-
+    url(r'^taskpstage$', views.tackle_taskpstage,name="taskpstage"),
+    url(r'^taskjob$', views.tackle_taskjob,name="tackle_job"),
+    url(r'^run_task$', views.run_task,name="run_task"),
+    
 ]
