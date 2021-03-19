@@ -28,7 +28,7 @@ django-ipware==2.0.1
 django-pagedown==1.0.4
 django-session-security==2.4.0
 django-uuslug==1.1.8
-djangorestframework==3.5.3
+djangorestframework==3.11.2
 dwebsocket==0.4.2
 enum34==1.1.6
 ephem==3.7.6.0
