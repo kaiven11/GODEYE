@@ -23,7 +23,7 @@ Django==2.0.3
 django-appconf==1.0.2
 django-autoslug==1.9.3
 django-celery-beat==1.1.0
-django-debug-toolbar==1.9.1
+django-debug-toolbar==1.11.1
 django-ipware==2.0.1
 django-pagedown==1.0.4
 django-session-security==2.4.0
