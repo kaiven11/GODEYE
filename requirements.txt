@@ -81,7 +81,7 @@ selenium==3.11.0
 service-identity==17.0.0
 six==1.11.0
 sqlparse==0.2.4
-Twisted==17.9.0
+Twisted==22.1.0
 txaio==2.8.2
 Unidecode==1.0.22
 urllib3==1.22
