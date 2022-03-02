@@ -76,7 +76,7 @@ pywin32==221
 queuelib==1.4.2
 redis==2.10.6
 requests==2.18.4
-Scrapy==1.5.0
+Scrapy==1.8.2
 selenium==3.11.0
 service-identity==17.0.0
 six==1.11.0
