@@ -47,7 +47,7 @@ jsonpickle==0.9.6
 jupyter-echarts-pypkg==0.1.0
 kombu==4.1.0
 lml==0.0.2
-lxml==4.1.1
+lxml==4.9.1
 markdown2==2.3.5
 MarkupSafe==1.0
 mistune==0.8.3
