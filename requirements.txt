@@ -50,7 +50,7 @@ lml==0.0.2
 lxml==4.1.1
 markdown2==2.3.5
 MarkupSafe==1.0
-mistune==0.8.3
+mistune==2.0.3
 msgpack-python==0.5.2
 olefile==0.45.1
 packaging==17.1
