@@ -89,7 +89,7 @@ vine==1.1.4
 virtualenv==15.2.0
 w3lib==1.19.0
 webencodings==0.5.1
-Werkzeug==0.14.1
+Werkzeug==2.2.3
 WeRoBot==1.2.0
 Whoosh==2.7.4
 WMI==1.4.9
